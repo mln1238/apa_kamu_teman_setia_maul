@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apakah Kamu Teman Maulana?</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Poppins & Fredoka) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        canvaPurple: '#7D2AE8',
+                        canvaBlue: '#00C4CC',
+                        canvaPink: '#FF66C4',
+                        canvaYellow: '#FFDE59',
+                        canvaBg: '#F3F4F8'
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F3F4F8;
+            background-image: radial-gradient(#7D2AE8 0.5px, transparent 0.5px), radial-gradient(#00C4CC 0.5px, #F3F4F8 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+        .canva-card {
+            box-shadow: 0 10px 25px -5px rgba(125, 42, 232, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 3px solid #ffffff;
+        }
+        .canva-btn {
+            transition: all 0.2s ease;
+        }
+        .canva-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .canva-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="quiz-app" class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-8 canva-card relative overflow-hidden transition-all duration-300">
+        
+        <!-- Hiasan Dekorasi khas Canva -->
+        <div class="absolute -top-8 -right-8 w-24 h-24 bg-canvaYellow rounded-full opacity-70 blur-sm pointer-events-none"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-canvaPink rounded-full opacity-50 blur-sm pointer-events-none"></div>
+
+        <div id="start-screen" class="text-center relative z-10">
+            <div class="inline-block bg-canvaPurple/10 text-canvaPurple px-4 py-1.5 rounded-full font-bold text-sm mb-4">
+                ✨ Official Maulana Quiz ✨
+            </div>
+            <h1 class="font-fredoka text-3xl md:text-4xl text-gray-800 font-bold mb-3">
+                Apakah Kamu Teman <span class="text-canvaPurple">Maulana</span>? 
+            </h1>
+            <p class="text-gray-600 mb-6 text-sm md:text-base">
+                Buktikan seberapa jauh kamu kenal sama Maulana dengan menjawab 5 pertanyaan khusus ini!
+            </p>
+            <div class="bg-canvaBg p-4 rounded-2xl mb-6 border border-gray-200/80 text-left">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Ketentuan:</div>
+                <div class="text-xs text-gray-600 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-canvaBlue"></i> Tulis jawaban kamu di kolom teks!
+                </div>
+            </div>
+            <button onclick="startQuiz()" class="canva-btn w-full bg-gradient-to-r from-canvaPurple to-canvaBlue text-white font-fredoka font-semibold text-lg py-3.5 px-6 rounded-2xl shadow-lg hover:opacity-95">
+                Mulai Kuis <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <div id="question-screen" class="hidden relative z-10">
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="question-number" class="font-fredoka text-xs md:text-sm font-semibold text-canvaPurple">Soal 1 dari 5</span>
+                    <span id="score-text" class="text-xs font-bold text-gray-500">Skor: 0</span>
+                </div>
+                <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-canvaPurple to-canvaPink h-full transition-all duration-300" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <!-- Kartu Pertanyaan -->
+            <div class="bg-canvaBg/80 p-5 rounded-2xl mb-5 border border-purple-100">
+                <h2 id="question-text" class="font-fredoka text-lg md:text-xl font-bold text-gray-800 mb-2">
+                    <!-- Teks pertanyaan akan dimuat lewat JS -->
+                </h2>
+            </div>
+
+            <!-- Form Input Jawaban -->
+            <form onsubmit="submitAnswer(event)" class="space-y-4">
+                <div>
+                    <label for="answer-input" class="block text-xs font-bold text-gray-600 mb-1.5 ml-1 uppercase">Jawaban Kamu:</label>
+                    <input type="text" id="answer-input" autocomplete="off" placeholder="Ketik jawaban di sini..." class="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-canvaPurple font-medium text-gray-800 transition">
+                </div>
+
+                <div id="feedback-message" class="hidden p-3 rounded-xl text-sm font-semibold text-center"></div>
+
+                <button id="submit-btn" type="submit" class="canva-btn w-full bg-canvaPurple text-white font-fredoka text-base py-3.5 rounded-2xl font-bold shadow-md">
+                    Jawab Sekarang <i class="fa-solid fa-paper-plane ml-1"></i>
+                </button>
+            </form>
+        </div>
+
+        <div id="result-screen" class="hidden text-center relative z-10">
+            <div id="result-badge" class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl shadow-inner">
+                <!-- Icon badge JS -->
+            </div>
+            
+            <h2 id="result-title" class="font-fredoka text-2xl md:text-3xl font-bold mb-2 text-gray-800">
+                <!-- Judul hasil JS -->
+            </h2>
+            
+            <p id="result-description" class="text-sm md:text-base text-gray-600 mb-6">
+                <!-- Deskripsi JS -->
+            </p>
+
+            <div class="bg-canvaBg p-4 rounded-2xl mb-6 border border-gray-200">
+                <div class="text-xs text-gray-500 uppercase font-bold mb-1">Skor Akhir Kamu</div>
+                <div id="final-score" class="font-fredoka text-4xl font-bold text-canvaPurple">0/5</div>
+            </div>
+
+            <button onclick="restartQuiz()" class="canva-btn w-full bg-gradient-to-r from-canvaPurple to-canvaBlue text-white font-fredoka font-semibold text-lg py-3.5 px-6 rounded-2xl shadow-lg">
+                <i class="fa-solid fa-rotate-right ml-1"></i> Coba Lagi
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Pertanyaan & Jawaban Valid (Tanpa Petunjuk & Kunci Jawaban)
+        const questions = [
+            {
+                id: 1,
+                question: "Maul itu tidurnya kaya gimana?",
+                validAnswers: ["rendome", "random", "rendom"]
+            },
+            {
+                id: 2,
+                question: "Hobi maul apa?",
+                validAnswers: ["buat game", "main roblox", "geometry dash", "roblox", "gd", "bikin game"]
+            },
+            {
+                id: 3,
+                question: "Siapa teman terpercaya maulana?",
+                validAnswers: ["nopal", "ano", "nara", "akbar", "yahya"]
+            },
+            {
+                id: 4,
+                question: "Maulana lahir tahun berapa?",
+                validAnswers: ["2014"]
+            },
+            {
+                id: 5,
+                question: "Makanan favorit apa?",
+                validAnswers: ["chicken", "ayam", "chicken fried", "fried chicken"]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Fungsi Memulai Kuis
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('question-screen').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            updateScoreUI();
+            loadQuestion();
+        }
+
+        // Fungsi Menampilkan Pertanyaan Saat Ini
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('question-number').innerText = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
+            document.getElementById('question-text').innerText = q.question;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('answer-input').focus();
+            
+            // Reset Pesan Feedback
+            const feedback = document.getElementById('feedback-message');
+            feedback.className = 'hidden p-3 rounded-xl text-sm font-semibold text-center';
+            
+            // Reset Tombol
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Jawab Sekarang <i class="fa-solid fa-paper-plane ml-1"></i>';
+
+            // Update Progress Bar
+            const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+        }
+
+        // Fungsi Memproses Jawaban
+        function submitAnswer(event) {
+            event.preventDefault();
+
+            const inputEl = document.getElementById('answer-input');
+            const userAnswers = inputEl.value.trim().toLowerCase();
+            const feedback = document.getElementById('feedback-message');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (!userAnswers) {
+                feedback.innerText = "Isi jawabanmu dulu ya!";
+                feedback.className = "p-3 rounded-xl text-sm font-semibold text-center bg-yellow-100 text-yellow-800 block mb-2";
+                return;
+            }
+
+            const currentQ = questions[currentQuestionIndex];
+            
+            // Cek apakah jawaban pengguna cocok dengan daftar jawaban valid
+            const isCorrect = currentQ.validAnswers.some(ans => userAnswers.includes(ans));
+
+            inputEl.disabled = true;
+            submitBtn.disabled = true;
+
+            if (isCorrect) {
+                score++;
+                updateScoreUI();
+                feedback.innerText = "🎉 Benar banget! Kamu emang mantap.";
+                feedback.className = "p-3 rounded-xl text-sm font-semibold text-center bg-green-100 text-green-800 block mb-2";
+            } else {
+                feedback.innerText = `❌ Salah nih! Jawaban kamu kurang tepat.`;
+                feedback.className = "p-3 rounded-xl text-sm font-semibold text-center bg-red-100 text-red-800 block mb-2";
+            }
+
+            // Lanjut ke soal berikutnya atau hasil akhir setelah delay 2 detik
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 2000);
+        }
+
+        // Update UI Skor
+        function updateScoreUI() {
+            document.getElementById('score-text').innerText = `Skor: ${score}`;
+        }
+
+        // Menampilkan Hasil Akhir Kuis
+        function showResult() {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
+
+            const badge = document.getElementById('result-badge');
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-description');
+
+            if (score === 5) {
+                badge.className = "w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl shadow-inner bg-green-100 text-green-600";
+                badge.innerHTML = '<i class="fa-solid fa-crown"></i>';
+                title.innerText = "FIX TEMAN SEJATI MAUL!";
+                desc.innerText = "Gokil! Kamu kenal banget sama Maulana luar dalam!";
+            } else if (score >= 3) {
+                badge.className = "w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl shadow-inner bg-yellow-100 text-yellow-600";
+                badge.innerHTML = '<i class="fa-solid fa-user-check"></i>';
+                title.innerText = "LUMAYAN KENAL MAUL!";
+                desc.innerText = "Kamu lumayan tahu tentang Maulana, tapi belum 100% paham nih!";
+            } else {
+                badge.className = "w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl shadow-inner bg-red-100 text-red-600";
+                badge.innerHTML = '<i class="fa-solid fa-ghost"></i>';
+                title.innerText = "KAMU PURA-PURA KENAL YA?";
+                desc.innerText = "Aduh, coba tanya-tanya lagi sama Maulana biar lebih kenal!";
+            }
+        }
+
+        // Reset Kuis
+        function restartQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
